@@ -7,9 +7,9 @@ int main() {
     cin >> m >> n;
     while(n > 0)
     {
-        int result = m % n;
+        int r = m % n;
         m = n;
-        n = result;
+        n = r
     }
     cout << "The gcd is :" << m << endl;
     return 0;
