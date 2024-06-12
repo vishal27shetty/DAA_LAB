@@ -1,9 +1,8 @@
 #include <iostream>
 #include <stack>
-
 using namespace std;
 
-int a[20][20], visited[20];
+int a[50][50], visited[50];
 stack<int> s;
 
 void dfs(int start, int n);
