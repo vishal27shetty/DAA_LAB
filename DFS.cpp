@@ -1,65 +1,51 @@
 #include <iostream>
+#include <vector>
 #include <stack>
+#include <chrono>
+
 using namespace std;
+using namespace std::chrono;
 
-int a[50][50], visited[50];
-stack<int> s;
-
-void dfs(int start, int n);
-
-int main() {
-    int n, i, j, start;
-    cout << "ENTER THE NUMBER OF VERTICES: ";
-    cin >> n;
-    
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
-            cout << "ENTER 1 IF " << i << " HAS A NODE WITH " << j << " ELSE 0: ";
-            cin >> a[i][j];
-        }
-    }
-    
-    cout << "THE ADJACENCY MATRIX IS\n";
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
-            cout << " " << a[i][j];
-        }
-        cout << endl;
-    }
-    
-    for (i = 1; i <= n; i++)
-        visited[i] = 0;
-    
-    cout << "\nD.F.S";
-    cout << "\nENTER THE SOURCE VERTEX: ";
-    cin >> start;
-    dfs(start, n);
-    
-    return 0;
-}
-
-void dfs(int start, int n) {
+void dfs(int start, const vector<vector<int>>& adj, vector<bool>& vis) {
+    stack<int> s;
     s.push(start);
-    visited[start] = 1;
-    cout << " " << start << " ";
-    
+
     while (!s.empty()) {
-        int k = s.top();
+        int node = s.top();
         s.pop();
 
-        for (int i = 1; i <= n; i++) {
-            if (a[k][i] != 0 && visited[i] == 0) {
-                s.push(i);
-                visited[i] = 1;
-                cout << " " << i << " ";
+        if (!vis[node]) {
+            vis[node] = true;
+            cout << node << " ";
+
+            for (int neighbor : adj[node]) {
+                if (!vis[neighbor]) {
+                    s.push(neighbor);
+                }
             }
         }
     }
-
-    for (int i = 1; i <= n; i++) {
-        if (visited[i] == 0) {
-            dfs(i, n);
-        }
-    }
 }
 
+int main() {
+    vector<vector<int>> adj = {
+        {1, 2},   // Neighbors of node 0
+        {0, 3, 4},// Neighbors of node 1
+        {0},      // Neighbors of node 2
+        {1},      // Neighbors of node 3
+        {1}       // Neighbors of node 4
+    };
+
+    vector<bool> vis(adj.size(), false);
+
+    cout << "DFS starting from node 0:" << endl;
+
+    auto start_time = high_resolution_clock::now();
+    dfs(0, adj, vis);
+    auto end_time = high_resolution_clock::now();
+
+    auto duration = duration_cast<microseconds>(end_time - start_time);
+    cout << "\nTime taken for DFS: " << duration.count() << " microseconds" << endl;
+
+    return 0;
+}
