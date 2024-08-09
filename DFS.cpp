@@ -1,25 +1,24 @@
-#include <iostream>
-#include <vector>
-#include <stack>
 #include <chrono>
+#include <iostream>
+#include <stack>
+#include <vector>
 
 using namespace std;
-using namespace std::chrono;
 
-void dfs(int start, const vector<vector<int>>& adj, vector<bool>& vis) {
+void DFS(const vector<vector<int>> &adjList, int startNode, vector<bool> &visited) {
     stack<int> s;
-    s.push(start);
+    s.push(startNode);
 
     while (!s.empty()) {
         int node = s.top();
         s.pop();
 
-        if (!vis[node]) {
-            vis[node] = true;
+        if (!visited[node]) {
+            visited[node] = true;
             cout << node << " ";
 
-            for (int neighbor : adj[node]) {
-                if (!vis[neighbor]) {
+            for (int neighbor : adjList[node]) {
+                if (!visited[neighbor]) {
                     s.push(neighbor);
                 }
             }
@@ -28,24 +27,24 @@ void dfs(int start, const vector<vector<int>>& adj, vector<bool>& vis) {
 }
 
 int main() {
-    vector<vector<int>> adj = {
-        {1, 2},   // Neighbors of node 0
-        {0, 3, 4},// Neighbors of node 1
-        {0},      // Neighbors of node 2
-        {1},      // Neighbors of node 3
-        {1}       // Neighbors of node 4
+    vector<vector<int>> adjList = {
+        {1, 2},    // Node 0 is connected to Node 1 and Node 2
+        {0, 3, 4}, // Node 1 is connected to Node 0, Node 3, and Node 4
+        {0},       // Node 2 is connected to Node 0
+        {1},       // Node 3 is connected to Node 1
+        {1}        // Node 4 is connected to Node 1
     };
 
-    vector<bool> vis(adj.size(), false);
+    int startNode = 0;
+    vector<bool> visited(adjList.size(), false);
 
-    cout << "DFS starting from node 0:" << endl;
+    auto start = chrono::high_resolution_clock::now();
+    cout << "DFS: ";
+    DFS(adjList, startNode, visited);
+    auto end = chrono::high_resolution_clock::now();
 
-    auto start_time = high_resolution_clock::now();
-    dfs(0, adj, vis);
-    auto end_time = high_resolution_clock::now();
-
-    auto duration = duration_cast<microseconds>(end_time - start_time);
-    cout << "\nTime taken for DFS: " << duration.count() << " microseconds" << endl;
+    chrono::duration<double> elapsedTime = end - start;
+    cout << "\nTime taken: " << elapsedTime.count() << " seconds\n";
 
     return 0;
 }
