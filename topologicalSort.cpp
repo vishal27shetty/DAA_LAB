@@ -1,64 +1,58 @@
-#include <bits/stdc++.h>
+#include <chrono>
+#include <iostream>
+#include <stack>
+#include <vector>
+
 using namespace std;
 
-// Function to perform DFS and topological sorting
-void topologicalSortUtil(int v, vector<vector<int> >& adj,
-                         vector<bool>& visited,
-                         stack<int>& Stack)
-{
-    // Mark the current node as visited
-    visited[v] = true;
+void topologicalSortDFS(int node, const vector<vector<int>> &adjList, vector<bool> &visited, stack<int> &topoStack) {
+    visited[node] = true;
 
-    // Recur for all adjacent vertices
-    for (int i : adj[v]) {
-        if (!visited[i])
-            topologicalSortUtil(i, adj, visited, Stack);
+    for (int neighbor : adjList[node]) {
+        if (!visited[neighbor]) {
+            topologicalSortDFS(neighbor, adjList, visited, topoStack);
+        }
     }
 
-    // Push current vertex to stack which stores the result
-    Stack.push(v);
+    // After visiting all neighbors, push the current node onto the stack
+    topoStack.push(node);
 }
 
-// Function to perform Topological Sort
-void topologicalSort(vector<vector<int> >& adj, int V)
-{
-    stack<int> Stack; // Stack to store the result
-    vector<bool> visited(V, false);
+void topologicalSort(const vector<vector<int>> &adjList) {
+    int numNodes = adjList.size();
+    vector<bool> visited(numNodes, false);
+    stack<int> topoStack;
 
-    // Call the recursive helper function to store
-    // Topological Sort starting from all vertices one by
-    // one
-    for (int i = 0; i < V; i++) {
-        if (!visited[i])
-            topologicalSortUtil(i, adj, visited, Stack);
+    // Perform DFS from each node
+    for (int i = 0; i < numNodes; i++) {
+        if (!visited[i]) {
+            topologicalSortDFS(i, adjList, visited, topoStack);
+        }
     }
 
-    // Print contents of stack
-    while (!Stack.empty()) {
-        cout << Stack.top() << " ";
-        Stack.pop();
+    // Print the topological sort by popping from the stack
+    cout << "Topological Sort: ";
+    while (!topoStack.empty()) {
+        cout << topoStack.top() << " ";
+        topoStack.pop();
     }
+    cout << endl;
 }
 
-int main()
-{
+int main() {
+    vector<vector<int>> adjList = {
+        {1, 2},  // Node 0 is connected to Node 1 and Node 2
+        {3},     // Node 1 is connected to Node 3
+        {3},     // Node 2 is connected to Node 3
+        {}       // Node 3 has no outgoing edges
+    };
 
-    // Number of nodes
-    int V = 4;
+    auto start = chrono::high_resolution_clock::now();
+    topologicalSort(adjList);
+    auto end = chrono::high_resolution_clock::now();
 
-    // Edges
-    vector<vector<int> > edges
-        = { { 0, 1 }, { 1, 2 }, { 3, 1 }, { 3, 2 } };
-
-    // Graph represented as an adjacency list
-    vector<vector<int> > adj(V);
-
-    for (auto i : edges) {
-        adj[i[0]].push_back(i[1]);
-    }
-
-    cout << "Topological sorting of the graph: ";
-    topologicalSort(adj, V);
+    chrono::duration<double> elapsedTime = end - start;
+    cout << "Time taken: " << elapsedTime.count() << " seconds" << endl;
 
     return 0;
 }
