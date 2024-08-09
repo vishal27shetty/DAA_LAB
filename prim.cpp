@@ -1,73 +1,64 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <climits>
+
 using namespace std;
 
-class Solution
-{
-public:
-    // Function to find sum of weights of edges of the Minimum Spanning Tree.
-    tuple<int, vector<pair<int, int>>, vector<int>> spanningTree(int V, vector<vector<int>> adj[])
-    {
-        priority_queue<tuple<int, int, int>,
-                       vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> pq;
+typedef pair<int, int> P; // (weight, vertex)
 
-        vector<int> vis(V, 0);
-        // {wt, node, parent}
-        pq.push({0, 0, -1});
-        int sum = 0;
-        vector<pair<int, int>> mst_edges;
-        vector<int> mst_weights;
+void prim(vector<vector<P>>& graph, int start) {
+    int n = graph.size();
+    vector<int> key(n, INT_MAX);
+    vector<bool> inMST(n, false);
+    priority_queue<P, vector<P>, greater<P>> pq;
 
-        while (!pq.empty()) {
-            auto [wt, node, parent] = pq.top();
-            pq.pop();
+    key[start] = 0;
+    pq.push({0, start});
 
-            if (vis[node] == 1) continue;
-            // add it to the mst
-            vis[node] = 1;
-            sum += wt;
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
 
-            // Include the edge in the MST edges list
-            if (parent != -1) {
-                mst_edges.push_back({parent, node});
-                mst_weights.push_back(wt);
-            }
+        if (inMST[u]) continue;
+        inMST[u] = true;
 
-            for (auto &it : adj[node]) {
-                int adjNode = it[0];
-                int edW = it[1];
-                if (!vis[adjNode]) {
-                    pq.push({edW, adjNode, node});
-                }
+        for (const auto& edge : graph[u]) {
+            int v = edge.second;
+            int wt = edge.first;
+            if (!inMST[v] && key[v] > wt) {
+                key[v] = wt;
+                pq.push({wt, v});
             }
         }
-        return {sum, mst_edges, mst_weights};
     }
-};
+
+    for (int i = 0; i < n; ++i) {
+        if (i != start) {
+            cout << "Edge: " << i << " - Cost: " << key[i] << endl;
+        }
+    }
+}
 
 int main() {
+    int n = 5; // Number of vertices
+    vector<vector<P>> graph(n);
 
-    int V = 5;
-    vector<vector<int>> edges = {{0, 1, 2}, {0, 2, 1}, {1, 2, 1}, {2, 3, 2}, {3, 4, 1}, {4, 2, 2}};
-    vector<vector<int>> adj[V];
-    for (auto &it : edges) {
-        vector<int> tmp(2);
-        tmp[0] = it[1];
-        tmp[1] = it[2];
-        adj[it[0]].push_back(tmp);
+    graph[0].push_back({2, 1});
+    graph[0].push_back({3, 3});
+    graph[1].push_back({2, 0});
+    graph[1].push_back({3, 2});
+    graph[1].push_back({1, 3});
+    graph[2].push_back({3, 1});
+    graph[2].push_back({5, 4});
+    graph[3].push_back({3, 0});
+    graph[3].push_back({1, 1});
+    graph[3].push_back({2, 4});
+    graph[4].push_back({5, 2});
+    graph[4].push_back({2, 3});
 
-        tmp[0] = it[0];
-        tmp[1] = it[2];
-        adj[it[1]].push_back(tmp);
-    }
-
-    Solution obj;
-    auto [sum, mst_edges, mst_weights] = obj.spanningTree(V, adj);
-
-    cout << "The sum of all the edge weights: " << sum << endl;
-    cout << "The edges in the minimum spanning tree are:" << endl;
-    for (size_t i = 0; i < mst_edges.size(); ++i) {
-        cout << mst_edges[i].first << " - " << mst_edges[i].second << " : " << mst_weights[i] << endl;
-    }
+    prim(graph, 0);
 
     return 0;
 }
