@@ -1,79 +1,61 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <climits>
+
 using namespace std;
 
-class Solution
-{
-public:
-    // Function to find the shortest distance of all the vertices
-    // from the source vertex S.
-    vector<int> dijkstra(int V, vector<vector<int>> adj[], int S)
-    {
+typedef pair<int, int> P; // (weight, vertex)
 
-        // Create a priority queue for storing the nodes as a pair {dist,node}
-        // where dist is the distance from source to the node. 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+void dijkstra(vector<vector<P>>& graph, int start) {
+    int n = graph.size();
+    vector<int> dist(n, INT_MAX);
+    vector<int> parent(n, -1); // To store the parent of each vertex in the shortest path tree
+    priority_queue<P, vector<P>, greater<P>> pq;
 
-        // Initialising distTo list with a large number to
-        // indicate the nodes are unvisited initially.
-        // This list contains distance from source to the nodes.
-        vector<int> distTo(V, INT_MAX);
+    dist[start] = 0;
+    pq.push({0, start});
 
-        // Source initialised with dist=0.
-        distTo[S] = 0;
-        pq.push({0, S});
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
 
-        // Now, pop the minimum distance node first from the min-heap
-        // and traverse for all its adjacent nodes.
-        while (!pq.empty())
-        {
-            int node = pq.top().second;
-            int dis = pq.top().first;
-            pq.pop();
-
-            // Check for all adjacent nodes of the popped out
-            // element whether the prev dist is larger than current or not.
-            for (auto it : adj[node])
-            {
-                int v = it[0];
-                int w = it[1];
-                if (dis + w < distTo[v])
-                {
-                    distTo[v] = dis + w;
-    
-                    // If current distance is smaller,
-                    // push it into the queue.
-                    pq.push({dis + w, v});
-                }
+        for (const auto& edge : graph[u]) {
+            int v = edge.second;
+            int wt = edge.first;
+            if (dist[v] > dist[u] + wt) {
+                dist[v] = dist[u] + wt;
+                pq.push({dist[v], v});
+                parent[v] = u; // Store the parent of v
             }
         }
-        // Return the list containing shortest distances
-        // from source to all the nodes.
-        return distTo;
     }
-};
 
-int main()
-{
-    // Driver code.
-    int V = 3, E = 3, S = 2;
-    vector<vector<int>> adj[V];
-    vector<vector<int>> edges;
-    vector<int> v1{1, 1}, v2{2, 6}, v3{2, 3}, v4{0, 1}, v5{1, 3}, v6{0, 6};
-    int i = 0;
-    adj[0].push_back(v1);
-    adj[0].push_back(v2);
-    adj[1].push_back(v3);
-    adj[1].push_back(v4);
-    adj[2].push_back(v5);
-    adj[2].push_back(v6);
-
-    Solution obj;
-    vector<int> res = obj.dijkstra(V, adj, S);
-
-    for (int i = 0; i < V; i++)
-    {
-        cout << res[i] << " ";
+    // Display the shortest path tree (similar to MST)
+    for (int i = 0; i < n; ++i) {
+        if (i != start && parent[i] != -1) {
+            cout << "Edge: " << parent[i] << " - " << i << " - Cost: " << dist[i] - dist[parent[i]] << endl;
+        }
     }
-    cout << endl;
+}
+
+int main() {
+    int n = 5; // Number of vertices
+    vector<vector<P>> graph(n);
+
+    graph[0].push_back({10, 1});
+    graph[0].push_back({5, 3});
+    graph[1].push_back({1, 2});
+    graph[1].push_back({2, 3});
+    graph[2].push_back({4, 4});
+    graph[3].push_back({2, 1});
+    graph[3].push_back({9, 2});
+    graph[3].push_back({2, 4});
+    graph[4].push_back({6, 0});
+    graph[4].push_back({7, 2});
+
+    dijkstra(graph, 0);
+
     return 0;
 }
